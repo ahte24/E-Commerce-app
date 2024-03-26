@@ -1,8 +1,41 @@
+"use client";
 /* eslint-disable @next/next/no-img-element */
-/* eslint-disable react/no-unescaped-entities */
-import React from "react";
+import { React, useState } from "react";
 
-const page = () => {
+const Page = () => {
+	const [userData, setUserData] = useState({ email: "", password: "" });
+
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setUserData((prevState) => ({
+			...prevState,
+			[name]: value,
+		}));
+	};
+
+	const handleLogin = async () => {
+		try {
+			const response = await fetch("http://localhost:5000/login", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(userData),
+			});
+			if (response.ok) {
+				console.log("login successfull");
+				setUserData({ email: "", password: "" });
+			} else {
+				console.error("Failed to login user");
+			}
+		} catch (error) {
+			console.error("Error: ", error);
+		}
+	};
+
+	const handleSubmit = async (e) => {
+		// e.preventDefault();
+		handleLogin();
+	};
+
 	return (
 		<div>
 			<div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
@@ -21,7 +54,7 @@ const page = () => {
 									htmlFor="email"
 									className="mb-1 text-xs tracking-wide text-gray-600"
 								>
-									E-Mail Address:
+									E-Mail
 								</label>
 								<div className="relative">
 									<div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
@@ -32,8 +65,9 @@ const page = () => {
 										id="email"
 										type="email"
 										name="email"
-										className="text-sm placeholder-gray-500 px-4 rounded-2xl border border-gray-400 w-full py-2 text-black focus:outline-none focus:border-blue-400"
-										placeholder="Enter your email"
+										className="text-sm placeholder-gray-500 px-4 text-black rounded-2xl border border-gray-400 w-full py-2 text-black focus:outline-none focus:border-blue-400"
+										placeholder="E-Mail"
+										onChange={handleChange}
 									/>
 								</div>
 							</div>
@@ -51,10 +85,11 @@ const page = () => {
 									</div>
 
 									<input
+										onChange={handleChange}
 										id="password"
 										type="password"
 										name="password"
-										className="text-sm placeholder-gray-500 px-4 rounded-2xl border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400"
+										className="text-sm placeholder-gray-500 px-4 text-black rounded-2xl border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400"
 										placeholder="Enter your password"
 									/>
 								</div>
@@ -62,6 +97,7 @@ const page = () => {
 
 							<div className="flex w-full">
 								<button
+									onClick={handleSubmit}
 									type="submit"
 									className="flex mt-2 items-center justify-center focus:outline-none text-white text-sm sm:text-base bg-blue-500 hover:bg-blue-600 rounded-2xl py-2 w-full transition duration-150 ease-in"
 								>
@@ -121,7 +157,7 @@ const page = () => {
 									<path d="M16 17l-4 4m0 0l-4-4m4 4V3"></path>
 								</svg>
 							</span>
-							<span className="ml-2">You don't have an account?</span>
+							<span className="ml-2">You dont have an account?</span>
 						</a>
 					</div>
 				</div>
@@ -130,4 +166,4 @@ const page = () => {
 	);
 };
 
-export default page;
+export default Page;

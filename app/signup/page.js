@@ -1,7 +1,44 @@
-/* eslint-disable @next/next/no-img-element */
-import React from "react";
+"use client";
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
-const page = () => {
+const Page = () => {
+	const [userData, setUserData] = useState({
+		username: "",
+		email: "",
+		password: "",
+	});
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setUserData((prevState) => ({
+			...prevState,
+			[name]: value,
+		}));
+	};
+
+	const handleSignup = async () => {
+		try {
+			const response = await fetch("http://localhost:5000/signup", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ ...userData, id: uuidv4() }),
+			});
+
+			if (response.ok) {
+				setUserData({ username: "", email: "", password: "" });
+				// router.push("/login");
+			} else {
+				console.error("Failed to create user");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+		}
+	};
+
+	const handleSubmit = async (e) => {
+		handleSignup();
+	};
+
 	return (
 		<div>
 			<div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
@@ -26,6 +63,7 @@ const page = () => {
 										<i className="fas fa-user text-blue-500"></i>
 									</div>
 									<input
+										onChange={handleChange}
 										id="username"
 										type="text"
 										name="username"
@@ -46,6 +84,7 @@ const page = () => {
 										<i className="fas fa-at text-blue-500"></i>
 									</div>
 									<input
+										onChange={handleChange}
 										id="email"
 										type="email"
 										name="email"
@@ -66,16 +105,18 @@ const page = () => {
 										<i className="fas fa-lock text-blue-500"></i>
 									</div>
 									<input
+										onChange={handleChange}
 										id="password"
 										type="password"
 										name="password"
-										className="text-sm placeholder-gray-500 px-4 rounded-2xl border border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400"
+										className="text-sm placeholder-gray-500 px-4 rounded-2xl border text-black border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400"
 										placeholder="Enter your password"
 									/>
 								</div>
 							</div>
 							<div className="flex w-full">
 								<button
+									onClick={handleSubmit}
 									type="submit"
 									className="flex mt-2 items-center justify-center focus:outline-none text-white text-sm sm:text-base bg-blue-500 hover:bg-blue-600 rounded-2xl py-2 w-full transition duration-150 ease-in"
 								>
@@ -144,4 +185,4 @@ const page = () => {
 	);
 };
 
-export default page;
+export default Page;
