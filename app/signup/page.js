@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -26,6 +27,8 @@ const Page = () => {
 
 			if (response.ok) {
 				setUserData({ username: "", email: "", password: "" });
+				window.location.href = "/login";
+
 				// router.push("/login");
 			} else {
 				console.error("Failed to create user");
@@ -36,6 +39,7 @@ const Page = () => {
 	};
 
 	const handleSubmit = async (e) => {
+		e.preventDefault();
 		handleSignup();
 	};
 

@@ -21,8 +21,11 @@ const Page = () => {
 				body: JSON.stringify(userData),
 			});
 			if (response.ok) {
+				const data = await response.json();
+				localStorage.setItem("token", data.token); // Store JWT token in local storage
 				console.log("login successfull");
 				setUserData({ email: "", password: "" });
+				window.location.href = "/";
 			} else {
 				console.error("Failed to login user");
 			}
@@ -32,7 +35,7 @@ const Page = () => {
 	};
 
 	const handleSubmit = async (e) => {
-		// e.preventDefault();
+		e.preventDefault();
 		handleLogin();
 	};
 
@@ -65,7 +68,7 @@ const Page = () => {
 										id="email"
 										type="email"
 										name="email"
-										className="text-sm placeholder-gray-500 px-4 text-black rounded-2xl border border-gray-400 w-full py-2 text-black focus:outline-none focus:border-blue-400"
+										className="text-sm placeholder-gray-500 px-4  rounded-2xl border border-gray-400 w-full py-2 text-black focus:outline-none focus:border-blue-400"
 										placeholder="E-Mail"
 										onChange={handleChange}
 									/>
