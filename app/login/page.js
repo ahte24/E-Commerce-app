@@ -1,6 +1,7 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
 import { React, useState } from "react";
+import axios from "axios";
 
 const Page = () => {
 	const [userData, setUserData] = useState({ email: "", password: "" });
@@ -15,25 +16,36 @@ const Page = () => {
 
 	const handleLogin = async () => {
 		try {
+			const headers = {
+				"Content-Type": "application/json",
+			};
 			const response = await fetch("http://localhost:5000/login", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify(userData),
+				method: "POST", // Add the method POST
+				headers: headers, // Include the headers
+				body: JSON.stringify({
+					// Convert data to JSON string
+					email: userData.email,
+					password: userData.password,
+				}),
 			});
 			if (response.ok) {
 				const data = await response.json();
-				localStorage.setItem("token", data.token); // Store JWT token in local storage
-				console.log("login successfull");
+				localStorage.setItem("token", data.token);
+				console.log("Login successful");
 				setUserData({ email: "", password: "" });
 				window.location.href = "/";
 			} else {
-				console.error("Failed to login user");
+				const errorData = await response.json();
+				console.error(
+					"Failed to login user. Status:",
+					response.status,
+					errorData
+				);
 			}
 		} catch (error) {
-			console.error("Error: ", error);
+			console.error("Error during login:", error);
 		}
 	};
-
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		handleLogin();

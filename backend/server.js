@@ -1,20 +1,20 @@
 import express from "express";
 import mongoose from "mongoose";
-import { User } from "./model/User.js";
-import bodyparser from "body-parser";
+import { User } from "./model/User.js"; // Assuming User model is defined here
+import bodyParser from "body-parser"; // Use bodyParser.json() instead
 import cors from "cors";
 import bcrypt from "bcrypt";
-import Jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken"; // Use jwt instead of Jwt (common practice)
 import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
 const port = 5000;
 app.use(cors());
-app.use(bodyparser.json());
+app.use(bodyParser.json());
 const connect = await mongoose.connect(process.env.MONGO_URI);
 
-const jwtSecret = process.env.JWT_KEY;
+const jwtSecret = "M_A_Zaman";
 
 app.post("/signup", async (req, res) => {
 	try {
@@ -36,7 +36,7 @@ app.post("/login", async (req, res) => {
 		email: req.body.email,
 	}).exec();
 	if (user && (await bcrypt.compare(req.body.password, user.password))) {
-		Jwt.sign(
+		jwt.sign(
 			{ user: user._id },
 			jwtSecret,
 			{ expiresIn: "1h" },
@@ -52,29 +52,28 @@ app.post("/login", async (req, res) => {
 	}
 });
 
-// Middleware to verify the token
 function verifyToken(req, res, next) {
 	const bearerHeader = req.headers["authorization"];
 	if (typeof bearerHeader !== "undefined") {
-		const bearerToken = bearerHeader;
+		const bearerToken = bearerHeader.split(" ")[1];
 		req.token = bearerToken;
 		console.log(req.token);
-		Jwt.verify(bearerToken, jwtSecret, (err, authData) => {
+
+		jwt.verify(bearerToken, jwtSecret, (err, authData) => {
 			if (err) {
-				console.log(err);
-				console.log("Error verifying token");
-				return res.sendStatus(403);
-			} else {
-				req.user = authData.user;
-				next();
+				console.error(err);
+				return res.status(403).json({ message: "Invalid token" });
 			}
+			req.user = authData.user;
+			next();
 		});
 	} else {
-		res.sendStatus(403); // Restrict home page for unverified user
+		// Handle missing token case
+		res.status(401).json({ message: "Authorization token required" });
 	}
 }
 
-app.post("/protected", verifyToken, (req, res) => {
+app.get("/pro", verifyToken, (req, res) => {
 	res.json({ message: "This is protected route." });
 });
 
