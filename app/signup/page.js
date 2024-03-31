@@ -28,8 +28,6 @@ const Page = () => {
 			if (response.ok) {
 				setUserData({ username: "", email: "", password: "" });
 				window.location.href = "/login";
-
-				// router.push("/login");
 			} else {
 				console.error("Failed to create user");
 			}
@@ -45,8 +43,8 @@ const Page = () => {
 
 	return (
 		<div>
-			<div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-				<div className="flex flex-col bg-white shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-3xl w-50 max-w-md">
+			<div className="h-[91vh] flex flex-col items-center justify-center bg-slate-100">
+				<div className="flex flex-col bg-slate-200 shadow-md px-4 sm:px-6 md:px-8 lg:px-10 py-8 rounded-3xl w-50 max-w-md">
 					<div className="font-medium self-center text-xl sm:text-3xl text-gray-800">
 						Create Your Account
 					</div>
@@ -64,14 +62,14 @@ const Page = () => {
 								</label>
 								<div className="relative">
 									<div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-										<i className="fas fa-user text-blue-500"></i>
+										<i className="fas fa-user "></i>
 									</div>
 									<input
 										onChange={handleChange}
 										id="username"
 										type="text"
 										name="username"
-										className="text-sm placeholder-gray-500 px-4 rounded-2xl border border-gray-400 w-full py-2 text-black focus:outline-none focus:border-blue-400"
+										className="text-sm placeholder-gray-500 px-4 rounded-2xl border border-gray-400 w-full py-2 text-black focus:outline-none "
 										placeholder="Enter your username"
 									/>
 								</div>
@@ -85,14 +83,14 @@ const Page = () => {
 								</label>
 								<div className="relative">
 									<div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-										<i className="fas fa-at text-blue-500"></i>
+										<i className="fas fa-at "></i>
 									</div>
 									<input
 										onChange={handleChange}
 										id="email"
 										type="email"
 										name="email"
-										className="text-sm placeholder-gray-500 px-4 rounded-2xl border border-gray-400 w-full py-2 text-black focus:outline-none focus:border-blue-400"
+										className="text-sm placeholder-gray-500 px-4 rounded-2xl border border-gray-400 w-full py-2 text-black focus:outline-none "
 										placeholder="Enter your email"
 									/>
 								</div>
@@ -106,14 +104,14 @@ const Page = () => {
 								</label>
 								<div className="relative">
 									<div className="inline-flex items-center justify-center absolute left-0 top-0 h-full w-10 text-gray-400">
-										<i className="fas fa-lock text-blue-500"></i>
+										<i className="fas fa-lock "></i>
 									</div>
 									<input
 										onChange={handleChange}
 										id="password"
 										type="password"
 										name="password"
-										className="text-sm placeholder-gray-500 px-4 rounded-2xl border text-black border-gray-400 w-full py-2 focus:outline-none focus:border-blue-400"
+										className="text-sm placeholder-gray-500 px-4 rounded-2xl border text-black border-gray-400 w-full py-2 focus:outline-none"
 										placeholder="Enter your password"
 									/>
 								</div>
@@ -122,7 +120,7 @@ const Page = () => {
 								<button
 									onClick={handleSubmit}
 									type="submit"
-									className="flex mt-2 items-center justify-center focus:outline-none text-white text-sm sm:text-base bg-blue-500 hover:bg-blue-600 rounded-2xl py-2 w-full transition duration-150 ease-in"
+									className="flex mt-2 items-center justify-center focus:outline-none text-white text-sm sm:text-base bg-black hover:font-bold transition-all rounded-2xl py-2 w-full  duration-150 ease-in"
 								>
 									<span className="mr-2 uppercase">Sign Up</span>
 									<span>
@@ -165,7 +163,7 @@ const Page = () => {
 					<div className="flex justify-center items-center mt-6">
 						<a
 							href="/login"
-							className="inline-flex items-center font-bold text-blue-500 hover:text-blue-700 text-xs text-center"
+							className="inline-flex items-center font-bold text-black text-xs text-center"
 						>
 							<span>
 								<svg
