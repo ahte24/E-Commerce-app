@@ -78,7 +78,6 @@ app.post("/login", async (req, res) => {
 					return res.status(403).send("Error signing token");
 				}
 				res.json({ token });
-				console.log(token);
 			}
 		);
 	} else {
@@ -113,7 +112,6 @@ app.post("/updateData", verifyToken, decodeToken, async (req, res) => {
 });
 
 app.get("/pro", verifyToken, decodeToken, (req, res) => {
-	console.log(req.user);
 	res.json({ message: "This is protected route." });
 });
 

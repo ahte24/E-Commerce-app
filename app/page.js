@@ -19,7 +19,7 @@ export default function Home() {
 				<div className="w-full bg-gray-400 h-[30vh] mt-4 rounded-md"></div>
 			</div>
 			<footer className="mt-4 bg-slate-200">
-				<div className="mx-auto w-full max-w-screen-xl p-4 py-6 lg:py-8">
+				<div className="mx-auto w-full max-w-screen-2xl p-4 py-6 lg:py-8">
 					<div className="md:flex md:justify-between">
 						<div className="mb-6 md:mb-0">
 							<a className="flex items-center">

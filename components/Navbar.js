@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 
 const Navbar = () => {
 	const [isUserVerified, setisUserVerified] = useState(false);
@@ -11,6 +12,8 @@ const Navbar = () => {
 	const handleProfile = () => {
 		if (isUserVerified) {
 			window.location.href = "/profile";
+		} else {
+			window.location.href = "/signin";
 		}
 	};
 
@@ -24,7 +27,9 @@ const Navbar = () => {
 	return (
 		<div className="sticky top-0 bg-slate-200">
 			<nav className="flex justify-between items-center h-[9vh] px-6 py-6 container m-auto">
-				<div className="font-normal text-3xl">LuxeAura Attire</div>
+				<Link href="/">
+					<div className="font-normal text-3xl">LuxeAura Attire</div>
+				</Link>
 				<ul className="flex gap-6 items-center font-normal">
 					<div className="flex items-center">
 						<div className="relative">
@@ -33,7 +38,7 @@ const Navbar = () => {
 								className="w-[30vw] h-[4vh] rounded-lg px-3 outline-none pr-9"
 								placeholder="Search"
 							/>
-							<a href="">
+							<Link href="">
 								<svg
 									className="absolute top-[5px] right-2"
 									width="24"
@@ -58,56 +63,58 @@ const Navbar = () => {
 										strokeLinejoin="round"
 									></path>
 								</svg>
-							</a>
+							</Link>
 						</div>
 					</div>
-					<a
+					<Link
 						className="w-[50px] hover:font-bold flex justify-center transition-all"
-						href=""
+						href="/"
 					>
 						<li>Home</li>
-					</a>
-					<a
+					</Link>
+					<Link
 						className="w-[50px] hover:font-bold flex justify-center transition-all"
 						href=""
 					>
 						<li>Deals</li>
-					</a>
-					<a
+					</Link>
+					<Link
 						className="w-[90px] hover:font-bold flex justify-center transition-all"
 						href=""
 					>
 						<li>New Arrive</li>
-					</a>
-					<a
+					</Link>
+					<Link
 						className="w-[80px] hover:font-bold flex justify-center transition-all"
 						href=""
 					>
 						<li>Packages</li>
-					</a>
-					<a
+					</Link>
+					<Link
 						className="w-[60px] hover:font-bold flex justify-center cursor-pointer transition-all "
+						href="/profile"
 						onClick={() => {
 							handleProfile();
 						}}
 					>
 						<li>Profile</li>
-					</a>
+					</Link>
 					{isUserVerified ? (
-						<button
+						<Link
 							onClick={handleLogout}
+							href="/"
 							className="bg-black hover:font-bold w-[80px] text-white flex justify-center py-[4px] rounded-lg transition-all"
 						>
 							<li>Logout</li>
-						</button>
+						</Link>
 					) : (
 						<>
-							<a
+							<Link
 								className="bg-black hover:font-bold w-[80px] text-white flex justify-center py-[4px] rounded-lg transition-all"
 								href="/signup"
 							>
 								<li>Sign Up</li>
-							</a>
+							</Link>
 						</>
 					)}
 				</ul>
