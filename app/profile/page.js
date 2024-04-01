@@ -8,6 +8,10 @@ const Page = () => {
 	const [data, setData] = useState(null);
 	const [verified, setVerified] = useState(false); // State to track verification status
 
+	const handleSignin = () => {
+		window.location.href = "/signin";
+	};
+
 	useEffect(() => {
 		async function fetchData() {
 			try {
@@ -28,6 +32,7 @@ const Page = () => {
 				});
 				if (!response.ok) {
 					console.error("Error fetching data:", response.statusText);
+					localStorage.removeItem("token");
 					if (response.status === 401) {
 						setVerified(false);
 					}
@@ -50,10 +55,10 @@ const Page = () => {
 					<div className=" w-1/5 p-2 flex flex-col items-center overflow-auto">
 						<Image
 							className="rounded-full h-24 w-24 mt-4 object-cover"
-							src="/icons/az.jpg"
-							width={500}
-							height={500}
+							src="/icons/az.jpg" // Assuming the image is in the 'public' directory
 							alt="Profile Image"
+							width={240} // Set width to desired value (e.g., 24px)
+							height={240} // Set height to desired value (e.g., 24px)
 						/>
 						<h1 className=" mt-2 ">ahtesham_24</h1>
 						<h1 className="text-xl mt-1 font-medium">Mohamed Ahtesham</h1>
@@ -82,7 +87,20 @@ const Page = () => {
 					<div className="bg-slate-50 w-4/5"></div>
 				</div>
 			) : (
-				<div className="min-h-[91vh] bg-slate-100"></div>
+				<div className="min-h-[91vh] bg-slate-100 ">
+					<div className="bg-red-200 p-4 rounded-lg shadow-md">
+						<p className="text-red-800 font-semibold">Session expired.</p>
+						<p className="text-red-700">Please logout and try again.</p>
+						<span
+							onClick={() => {
+								handleSignin();
+							}}
+							className="text-red-700 cursor-pointer"
+						>
+							Login again
+						</span>
+					</div>
+				</div>
 			)}
 		</div>
 	);

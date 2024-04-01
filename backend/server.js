@@ -4,7 +4,7 @@ import { User } from "./model/User.js"; // Assuming User model is defined here
 import bodyParser from "body-parser"; // Use bodyParser.json() instead
 import cors from "cors";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken"; // Use jwt instead of Jwt (common practice)
+import jwt, { decode } from "jsonwebtoken"; // Use jwt instead of Jwt (common practice)
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -15,6 +15,39 @@ app.use(bodyParser.json());
 const connect = await mongoose.connect(process.env.MONGO_URI);
 
 const jwtSecret = "M_A_Zaman";
+
+function decodeToken(req, res, next) {
+	const bearerHeader = req.headers["authorization"];
+	if (typeof bearerHeader !== "undefined") {
+		const bearerToken = bearerHeader.split(" ")[1];
+		req.token = bearerToken;
+		const decodedToken = jwt.verify(bearerToken, jwtSecret);
+		// console.log(decodedToken.user);
+		next();
+	} else {
+		// Handle missing token case
+		res.status(401).json({ message: "Authorization token required" });
+	}
+}
+
+function verifyToken(req, res, next) {
+	const bearerHeader = req.headers["authorization"];
+	if (typeof bearerHeader !== "undefined") {
+		const bearerToken = bearerHeader.split(" ")[1];
+		req.token = bearerToken;
+		jwt.verify(bearerToken, jwtSecret, (err, authData) => {
+			if (err) {
+				console.error(err);
+				return res.status(403).json({ message: "Invalid token" });
+			}
+			req.user = authData.user;
+			next();
+		});
+	} else {
+		// Handle missing token case
+		res.status(401).json({ message: "Authorization token required" });
+	}
+}
 
 app.post("/signup", async (req, res) => {
 	try {
@@ -45,6 +78,7 @@ app.post("/login", async (req, res) => {
 					return res.status(403).send("Error signing token");
 				}
 				res.json({ token });
+				console.log(token);
 			}
 		);
 	} else {
@@ -52,26 +86,34 @@ app.post("/login", async (req, res) => {
 	}
 });
 
-function verifyToken(req, res, next) {
-	const bearerHeader = req.headers["authorization"];
-	if (typeof bearerHeader !== "undefined") {
-		const bearerToken = bearerHeader.split(" ")[1];
-		req.token = bearerToken;
-		jwt.verify(bearerToken, jwtSecret, (err, authData) => {
-			if (err) {
-				console.error(err);
-				return res.status(403).json({ message: "Invalid token" });
-			}
-			req.user = authData.user;
-			next();
-		});
-	} else {
-		// Handle missing token case
-		res.status(401).json({ message: "Authorization token required" });
-	}
-}
+app.post("/updateData", verifyToken, decodeToken, async (req, res) => {
+	try {
+		const userId = req.user;
+		const updatedUser = await User.findByIdAndUpdate(
+			userId,
+			{
+				$set: {
+					name: req.body.name,
+					address: req.body.address,
+					cardDetails: req.body.cardDetails,
+				},
+			},
+			{ new: true }
+		);
 
-app.get("/pro", verifyToken, (req, res) => {
+		if (!updatedUser) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+		res.json(updatedUser); // Send back the updated user data
+	} catch (err) {
+		console.error(err);
+		res.status(500).json({ error: "Error storing data" });
+	}
+});
+
+app.get("/pro", verifyToken, decodeToken, (req, res) => {
+	console.log(req.user);
 	res.json({ message: "This is protected route." });
 });
 
