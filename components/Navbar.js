@@ -92,10 +92,10 @@ const Navbar = () => {
 					</Link>
 					<Link
 						className="w-[60px] hover:font-bold flex justify-center cursor-pointer transition-all "
-						href="/profile"
 						onClick={() => {
 							handleProfile();
 						}}
+						href="/profile"
 					>
 						<li>Profile</li>
 					</Link>

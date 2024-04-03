@@ -4,12 +4,16 @@ import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 const Page = () => {
+	const [isSeller, setisSeller] = useState(false);
 	const [userData, setUserData] = useState({
 		username: "",
 		email: "",
 		password: "",
+		isSeller: false,
 	});
+
 	const handleChange = (e) => {
+		setisSeller(e.target.checked);
 		const { name, value } = e.target;
 		setUserData((prevState) => ({
 			...prevState,
@@ -22,12 +26,12 @@ const Page = () => {
 			const response = await fetch("http://localhost:5000/signup", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ ...userData, id: uuidv4() }),
+				body: JSON.stringify({ ...userData, id: uuidv4(), isSeller: isSeller }),
 			});
 
 			if (response.ok) {
 				setUserData({ username: "", email: "", password: "" });
-				window.location.href = "/login";
+				window.location.href = "/signin";
 			} else {
 				console.error("Failed to create user");
 			}
@@ -51,7 +55,7 @@ const Page = () => {
 					<div className="mt-4 self-center text-xl sm:text-sm text-gray-800">
 						Sign up to get started!
 					</div>
-					<div className="mt-10">
+					<div className="mt-6">
 						<form action="#">
 							<div className="flex flex-col mb-5">
 								<label
@@ -95,7 +99,7 @@ const Page = () => {
 									/>
 								</div>
 							</div>
-							<div className="flex flex-col mb-6">
+							<div className="flex flex-col mb-3">
 								<label
 									htmlFor="password"
 									className="mb-1 text-xs tracking-wide text-gray-600"
@@ -116,6 +120,25 @@ const Page = () => {
 									/>
 								</div>
 							</div>
+							<div className="flex items-center mb-3">
+								<label
+									htmlFor="isSeller"
+									className="text-sm tracking-wide text-gray-600"
+								>
+									Seller account :
+								</label>
+								<div className="flex items-center ml-4">
+									<input
+										onChange={handleChange}
+										checked={isSeller}
+										id="isSeller"
+										type="checkbox"
+										name="isSeller"
+										className="placeholder-gray-500 rounded-2xl"
+									/>
+								</div>
+							</div>
+
 							<div className="flex w-full">
 								<button
 									onClick={handleSubmit}

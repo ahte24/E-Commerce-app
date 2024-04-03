@@ -7,7 +7,6 @@ import Link from "next/link";
 const Page = () => {
 	const [data, setData] = useState(null);
 	const [verified, setVerified] = useState(true); // State to track verification status
-
 	const handleSignin = () => {
 		window.location.href = "/signin";
 	};

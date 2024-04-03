@@ -30,6 +30,7 @@ const UserSchema = new mongoose.Schema({
 		number: String, // Masked or encrypted card number (security best practice)
 		expiry: String, // MM/YYYY format
 	},
+	isSeller: { type: Boolean, default: false },
 });
 
 export const User = mongoose.model("User", UserSchema);
