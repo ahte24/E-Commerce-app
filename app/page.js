@@ -35,13 +35,13 @@ export default function Home() {
 								</h2>
 								<ul className="text-black font-medium">
 									<li className="mb-4">
-										<a href="https://flowbite.com/" className="hover:underline">
+										<a href="" className="hover:underline">
 											Flowbite
 										</a>
 									</li>
 									<li>
 										<a
-											href="https://tailwindcss.com/"
+											href="#"
 											className="hover:underline"
 										>
 											Tailwind CSS
@@ -95,7 +95,7 @@ export default function Home() {
 					<div className="sm:flex sm:items-center sm:justify-between">
 						<span className="text-sm text-black sm:text-center ">
 							© 2023{" "}
-							<a href="https://flowbite.com/" className="hover:underline">
+							<a href="" className="hover:underline">
 								Flowbite™
 							</a>
 							. All Rights Reserved.

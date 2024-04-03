@@ -6,6 +6,7 @@ import bodyParser from "body-parser"; // Use bodyParser.json() instead
 import cors from "cors";
 import bcrypt from "bcrypt";
 import jwt, { decode } from "jsonwebtoken"; // Use jwt instead of Jwt (common practice)
+import { verifyToken, isSeller } from "./middleware.js";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -16,73 +17,6 @@ app.use(bodyParser.json());
 const connect = await mongoose.connect(process.env.MONGO_URI);
 
 const jwtSecret = process.env.JWT_KEY;
-
-const decodeToken = (req, res, next) => {
-	const bearerHeader = req.headers["authorization"];
-	if (typeof bearerHeader !== "undefined") {
-		const bearerToken = bearerHeader.split(" ")[1];
-		req.token = bearerToken;
-		const decodedToken = jwt.verify(bearerToken, jwtSecret);
-		next();
-	} else {
-		// Handle missing token case
-		res.status(401).json({ message: "Authorization token required" });
-	}
-};
-
-const verifyToken = (req, res, next) => {
-	const bearerHeader = req.headers["authorization"];
-	if (typeof bearerHeader !== "undefined") {
-		const bearerToken = bearerHeader.split(" ")[1];
-		req.token = bearerToken;
-		jwt.verify(bearerToken, jwtSecret, (err, authData) => {
-			if (err) {
-				console.error(err);
-				return res.status(403).json({ message: "Invalid token" });
-			}
-			req.user = authData.user;
-			next();
-		});
-	} else {
-		// Handle missing token case
-		res.status(401).json({ message: "Authorization token required" });
-	}
-};
-
-// check if the user is seller or not
-
-const isSeller = (req, res, next) => {
-	const bearerHeader = req.headers["authorization"];
-	if (typeof bearerHeader !== "undefined") {
-		const bearerToken = bearerHeader.split(" ")[1];
-		req.token = bearerToken;
-		jwt.verify(bearerToken, jwtSecret, (err, authData) => {
-			if (err) {
-				console.error(err);
-				// Handle token verification error
-				res.status(401).json({ message: "Authorization failed" });
-			} else {
-				// Assuming authData contains user information
-				const isUserSeller = authData.isSeller;
-				if (isUserSeller) {
-					// User is a seller, proceed to the next middleware
-					next();
-				} else {
-					// User is not a seller, return unauthorized status
-					res
-						.status(403)
-						.json({ message: "Access Denied: Seller permissions required" });
-				}
-			}
-		});
-	} else {
-		// Handle missing token case
-		res.status(401).json({
-			message:
-				"You are not authorized to access this resource. Please provide a valid authorization token.",
-		});
-	}
-};
 
 app.post("/signup", async (req, res) => {
 	try {
@@ -121,7 +55,7 @@ app.post("/login", async (req, res) => {
 	}
 });
 
-app.post("/updateData", verifyToken, decodeToken, async (req, res) => {
+app.post("/updateData", verifyToken, async (req, res) => {
 	try {
 		const userId = req.user;
 		const updatedUser = await User.findByIdAndUpdate(
@@ -148,10 +82,14 @@ app.post("/updateData", verifyToken, decodeToken, async (req, res) => {
 	}
 });
 
+app.get("/userprofile", async (req, res) => {
+	// write a get api to retreive all the data form the database
+});
+
 app.post(
 	"/listproducts",
 	verifyToken,
-	decodeToken,
+
 	isSeller,
 	async (req, res) => {
 		try {
@@ -161,13 +99,13 @@ app.post(
 				name: req.body.name,
 				description: req.body.description,
 				price: req.body.price,
-				countInStock: req.body.countInStock,
-				imageURL: req.body.imageURL,
-				ratings: req.body.ratings,
-				reviews: req.body.reviews,
-				kind: req.body.kind,
-				itemType: req.body.itemType,
-				discount: req.body.discount,
+				// countInStock: req.body.countInStock,
+				// imageURL: req.body.imageURL,
+				// ratings: req.body.ratings,
+				// reviews: req.body.reviews,
+				// kind: req.body.kind,
+				// itemType: req.body.itemType,
+				// discount: req.body.discount,
 			});
 			const savedProduct = await newProduct.save();
 			res.status(201).send(savedProduct); // Or send a success message
@@ -178,8 +116,38 @@ app.post(
 	}
 );
 
-app.get("/pro", verifyToken, decodeToken, (req, res) => {
+app.get("/pro", verifyToken, (req, res) => {
 	res.json({ message: "This is protected route." });
+});
+
+app.get("/getdata", verifyToken, async (req, res) => {
+	const userId = req.user;
+	try {
+		const userDoc = await User.findById(userId);
+		if (userDoc) {
+			res.json(userDoc); // Send user data as JSON response
+		} else {
+			res.status(404).send("No user found with that ID");
+		}
+	} catch (err) {
+		console.error("Error fetching user:", err);
+		res.status(500).send("Internal Server Error");
+	}
+});
+app.get("/getproducts", verifyToken, async (req, res) => {
+	const sellerId = req.user;
+	try {
+		Product.find({ sellerId: sellerId }).then((products) => {
+			if (products.length > 0) {
+				console.log("Products:", products);
+				res.json(products);
+			} else {
+				console.log("No products found with that seller ID");
+			}
+		});
+	} catch (err) {
+		console.error("Error fetching products:", err);
+	}
 });
 
 app.listen(port, () => {

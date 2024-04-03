@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -184,8 +185,8 @@ const Page = () => {
 						</div>
 					</div>
 					<div className="flex justify-center items-center mt-6">
-						<a
-							href="/login"
+						<Link
+							href="/signin"
 							className="inline-flex items-center font-bold text-black text-xs text-center"
 						>
 							<span>
@@ -202,7 +203,7 @@ const Page = () => {
 								</svg>
 							</span>
 							<span className="ml-2">Already have an account? Login!</span>
-						</a>
+						</Link>
 					</div>
 				</div>
 			</div>
