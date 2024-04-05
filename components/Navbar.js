@@ -86,9 +86,9 @@ const Navbar = () => {
 					</Link>
 					<Link
 						className="w-[80px] hover:font-bold flex justify-center transition-all"
-						href=""
+						href="/products"
 					>
-						<li>Packages</li>
+						<li>Products</li>
 					</Link>
 					<Link
 						className="w-[60px] hover:font-bold flex justify-center cursor-pointer transition-all "

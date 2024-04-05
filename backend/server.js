@@ -120,7 +120,7 @@ app.get("/pro", verifyToken, (req, res) => {
 	res.json({ message: "This is protected route." });
 });
 
-app.get("/getdata", verifyToken, async (req, res) => {
+app.get("/getuserdata", verifyToken, async (req, res) => {
 	const userId = req.user;
 	try {
 		const userDoc = await User.findById(userId);
@@ -134,7 +134,8 @@ app.get("/getdata", verifyToken, async (req, res) => {
 		res.status(500).send("Internal Server Error");
 	}
 });
-app.get("/getproducts", verifyToken, async (req, res) => {
+
+app.get("/products/seller", verifyToken, isSeller, async (req, res) => {
 	const sellerId = req.user;
 	try {
 		Product.find({ sellerId: sellerId }).then((products) => {
@@ -147,6 +148,40 @@ app.get("/getproducts", verifyToken, async (req, res) => {
 		});
 	} catch (err) {
 		console.error("Error fetching products:", err);
+	}
+});
+
+// Update a product by ID (PUT)
+app.put("/:id", async (req, res) => {
+	const { id } = req.params;
+	const updates = req.body; // Capture updates from request body
+
+	try {
+		const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
+			new: true,
+		});
+		if (!updatedProduct) {
+			console.log("something went wrong");
+			return res.status(404).json({ message: "Product not found" });
+		}
+		res.status(200).json(updatedProduct);
+	} catch (error) {
+		res.status(500).json({ error: "Server error" });
+	}
+});
+
+app.get("/products/all", async (req, res) => {
+	try {
+		const products = await Product.find({}); // Use async/await for cleaner syntax
+
+		if (products.length > 0) {
+			res.status(200).json(products); // Use JSON response with appropriate status code
+		} else {
+			res.status(204).send("No products fount."); // Send empty response with 204 No Content for clarity
+		}
+	} catch (error) {
+		console.error(error); // Log the error for debugging purposes
+		res.status(500).json({ message: "Error fetching products" }); // Send user-friendly error message
 	}
 });
 
