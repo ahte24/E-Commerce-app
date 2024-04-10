@@ -8,13 +8,15 @@ import bcrypt from "bcrypt";
 import jwt, { decode } from "jsonwebtoken"; // Use jwt instead of Jwt (common practice)
 import { verifyToken, isSeller } from "./middleware.js";
 import dotenv from "dotenv";
+import { Cart } from "./model/cart.js";
 dotenv.config();
 
 const app = express();
 const port = 5000;
 app.use(cors());
 app.use(bodyParser.json());
-const connect = await mongoose.connect(process.env.MONGO_URI);
+
+await mongoose.connect(process.env.MONGO_URI);
 
 const jwtSecret = process.env.JWT_KEY;
 
@@ -42,7 +44,7 @@ app.post("/login", async (req, res) => {
 		jwt.sign(
 			{ user: user._id, isSeller: user.isSeller },
 			jwtSecret,
-			{ expiresIn: "1h" },
+			{ expiresIn: "24h" },
 			(err, token) => {
 				if (err) {
 					return res.status(403).send("Error signing token");
@@ -55,7 +57,12 @@ app.post("/login", async (req, res) => {
 	}
 });
 
-app.post("/updateData", verifyToken, async (req, res) => {
+// This is verified route
+app.get("/pro", verifyToken, (req, res) => {
+	res.json({ message: "This is protected route." });
+});
+
+app.post("/addData", verifyToken, async (req, res) => {
 	try {
 		const userId = req.user;
 		const updatedUser = await User.findByIdAndUpdate(
@@ -65,6 +72,7 @@ app.post("/updateData", verifyToken, async (req, res) => {
 					name: req.body.name,
 					address: req.body.address,
 					cardDetails: req.body.cardDetails,
+					mobileNumber: req.body.mobileNumber,
 					isSeller: req.body.isSeller,
 				},
 			},
@@ -82,50 +90,38 @@ app.post("/updateData", verifyToken, async (req, res) => {
 	}
 });
 
-app.get("/userprofile", async (req, res) => {
-	// write a get api to retreive all the data form the database
-});
-
-app.post(
-	"/listproducts",
-	verifyToken,
-
-	isSeller,
-	async (req, res) => {
-		try {
-			const sellerId = req.user;
-			const newProduct = new Product({
-				sellerId: sellerId,
-				name: req.body.name,
-				description: req.body.description,
-				price: req.body.price,
-				// countInStock: req.body.countInStock,
-				// imageURL: req.body.imageURL,
-				// ratings: req.body.ratings,
-				// reviews: req.body.reviews,
-				// kind: req.body.kind,
-				// itemType: req.body.itemType,
-				// discount: req.body.discount,
-			});
-			const savedProduct = await newProduct.save();
-			res.status(201).send(savedProduct); // Or send a success message
-		} catch (err) {
-			console.error(err);
-			res.status(500).send("Internal Server Error");
-		}
+// Listing products
+app.post("/listproducts", verifyToken, isSeller, async (req, res) => {
+	try {
+		const sellerId = req.user;
+		const newProduct = new Product({
+			sellerId: sellerId,
+			name: req.body.name,
+			description: req.body.description,
+			price: req.body.price,
+			// countInStock: req.body.countInStock,
+			// imageURL: req.body.imageURL,
+			// ratings: req.body.ratings,
+			// reviews: req.body.reviews,
+			// kind: req.body.kind,
+			// itemType: req.body.itemType,
+			// discount: req.body.discount,
+		});
+		const savedProduct = await newProduct.save();
+		res.status(201).send(savedProduct); // Or send a success message
+	} catch (err) {
+		console.error(err);
+		res.status(500).send("Internal Server Error");
 	}
-);
-
-app.get("/pro", verifyToken, (req, res) => {
-	res.json({ message: "This is protected route." });
 });
 
+// Fetch current user data from the user collection of the database (GET)
 app.get("/getuserdata", verifyToken, async (req, res) => {
 	const userId = req.user;
 	try {
-		const userDoc = await User.findById(userId);
-		if (userDoc) {
-			res.json(userDoc); // Send user data as JSON response
+		const userData = await User.findById(userId);
+		if (userData) {
+			res.json(userData); // Send user data as JSON response
 		} else {
 			res.status(404).send("No user found with that ID");
 		}
@@ -135,6 +131,28 @@ app.get("/getuserdata", verifyToken, async (req, res) => {
 	}
 });
 
+// update user data
+app.put("/userdata/update", verifyToken, async (req, res) => {
+	const userId = req.user;
+	const update = req.body;
+
+	try {
+		const updateUserData = await User.findByIdAndUpdate(userId, update, {
+			new: true,
+		});
+		if (!updateUserData) {
+			console.log;
+			return res.status(404).json({ message: "User not found" }); // Respond with 404 Not Found if product not found
+		}
+		return res
+			.status(200)
+			.json({ message: "User data updated successfully: ", updateUserData });
+	} catch (error) {
+		res.status(500).json({ error: "Server error" }); // Respond with 500 Internal Server Error on unexpected errors
+	}
+});
+
+// Fetch all the product Data of the current seller from the product collection of the database (GET)
 app.get("/products/seller", verifyToken, isSeller, async (req, res) => {
 	const sellerId = req.user;
 	try {
@@ -151,37 +169,109 @@ app.get("/products/seller", verifyToken, isSeller, async (req, res) => {
 	}
 });
 
-// Update a product by ID (PUT)
-app.put("/:id", async (req, res) => {
+// To view a specific data
+// Fetch single data of the product associated with the ID from the product collection of the database (GET)
+app.get("/product/info/:id", verifyToken, isSeller, async (req, res) => {
 	const { id } = req.params;
-	const updates = req.body; // Capture updates from request body
 
 	try {
-		const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
-			new: true,
-		});
-		if (!updatedProduct) {
-			console.log("something went wrong");
-			return res.status(404).json({ message: "Product not found" });
+		const productData = await Product.findOne({ _id: id });
+		if (productData) {
+			res.json(productData);
+		} else {
+			res.status(404).send("No product found with that ID");
 		}
-		res.status(200).json(updatedProduct);
 	} catch (error) {
-		res.status(500).json({ error: "Server error" });
+		console.error("Error fetching product data: ", error);
+		res.status(500).send("Internal Server Error");
 	}
 });
 
-app.get("/products/all", async (req, res) => {
+// Update a product by ID (PUT)
+app.put("/:id", verifyToken, isSeller, async (req, res) => {
+	// Route handler for PUT requests to "/:id" endpoint (where ":id" is a dynamic parameter)
+
+	const { id } = req.params; // Extract product ID from request parameters
+	const updates = req.body; // Capture update data from request body
+
 	try {
-		const products = await Product.find({}); // Use async/await for cleaner syntax
+		const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
+			new: true, // Return the updated product document
+		});
+
+		if (!updatedProduct) {
+			return res.status(404).json({ message: "Product not found" }); // Respond with 404 Not Found if product not found
+		}
+
+		res.status(200).json(updatedProduct); // Respond with 200 OK and the updated product data
+	} catch (error) {
+		res.status(500).json({ error: "Server error" }); // Respond with 500 Internal Server Error on unexpected errors
+	}
+});
+
+// Fetch all the product from the product collection of the database (GET)
+app.get("/products/all", async (req, res) => {
+	// Route handler for GET requests to "/products/all" endpoint
+
+	try {
+		const products = await Product.find({}); // Find all products asynchronously
 
 		if (products.length > 0) {
-			res.status(200).json(products); // Use JSON response with appropriate status code
+			res.status(200).json(products); // Respond with the list of products (status code 200: OK)
 		} else {
-			res.status(204).send("No products fount."); // Send empty response with 204 No Content for clarity
+			res.status(204).send("No products found."); // Respond with an empty response (status code 204: No Content)
 		}
 	} catch (error) {
-		console.error(error); // Log the error for debugging purposes
-		res.status(500).json({ message: "Error fetching products" }); // Send user-friendly error message
+		console.error(error); // Log the error for debugging
+		res.status(500).json({ message: "Error fetching products" }); // Respond with a user-friendly error message (status code 500: Internal Server Error)
+	}
+});
+
+app.post("/cart/:productId", verifyToken, (req, res) => {
+	const userId = req.user;
+	const { productId } = req.params;
+
+	try {
+		const cartData = new Cart({
+			userId: userId,
+			productId: productId,
+			quantity: req.body.quantity,
+		});
+		const save = cartData.save();
+		if (save) {
+			res.json({ message: "Item added to cart." });
+		} else {
+			res.json({ message: "Something went wrong" });
+		}
+	} catch (error) {
+		res.send(error);
+	}
+});
+
+app.get("/cart", verifyToken, async (req, res) => {
+	try {
+		const userId = req.user;
+		const cart = await Cart.find({ userId: userId });
+		console.log(cart);
+		if (!cart) {
+			return res.json({ message: "Your cart is currently empty." });
+		}
+		for (const data in cart) {
+			// const quantity = cart[data].quantity;
+			console.log(cart[data].quantity);
+			const product = await Product.findById(cart[data].productId);
+			// if (!product) {
+			// 	// Handle missing product gracefully
+			// 	return res.json({ message: "Product not found in your cart." });
+			// }
+			// Send a well-structured response with product and quantity
+			res.json({ product });
+		}
+	} catch (error) {
+		console.error(error); // Log the error for debugging
+		res
+			.status(500)
+			.json({ message: "An error occurred while retrieving your cart." });
 	}
 });
 

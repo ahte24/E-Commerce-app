@@ -30,6 +30,10 @@ const UserSchema = new mongoose.Schema({
 		number: String, // Masked or encrypted card number (security best practice)
 		expiry: String, // MM/YYYY format
 	},
+	mobileNumber: {
+		type: Number,
+		unique: true,
+	},
 	isSeller: { type: Boolean, default: false },
 });
 
