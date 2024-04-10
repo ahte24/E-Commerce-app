@@ -8,7 +8,7 @@ const cartSchema = new mongoose.Schema({
 	productId: {
 		type: String,
 		require: true,
-		unique: true,
+		// unique: true,
 	},
 	quantity: {
 		type: Number,

@@ -244,7 +244,7 @@ app.post("/cart/:productId", verifyToken, (req, res) => {
 			res.json({ message: "Something went wrong" });
 		}
 	} catch (error) {
-		res.send(error);
+		res.send({ message: "Internal server error." });
 	}
 });
 
@@ -252,21 +252,27 @@ app.get("/cart", verifyToken, async (req, res) => {
 	try {
 		const userId = req.user;
 		const cart = await Cart.find({ userId: userId });
-		console.log(cart);
-		if (!cart) {
+		// Check if the cart is empty
+		if (cart.length === 0) {
 			return res.json({ message: "Your cart is currently empty." });
 		}
-		for (const data in cart) {
-			// const quantity = cart[data].quantity;
-			console.log(cart[data].quantity);
-			const product = await Product.findById(cart[data].productId);
-			// if (!product) {
-			// 	// Handle missing product gracefully
-			// 	return res.json({ message: "Product not found in your cart." });
-			// }
-			// Send a well-structured response with product and quantity
-			res.json({ product });
+		// Array to store product data
+		const productsData = [];
+		for (const cartItem of cart) {
+			const product = await Product.findById(cartItem.productId);
+			if (!product) {
+				// Handle missing product gracefully
+				console.log(`Product with ID ${cartItem.productId} not found.`);
+				continue; // Skip to the next item
+			}
+			productsData.push({
+				product: product,
+				quantity: cartItem.quantity,
+			});
 		}
+
+		// Send the response after looping through all items
+		res.json({ Cart: productsData });
 	} catch (error) {
 		console.error(error); // Log the error for debugging
 		res
