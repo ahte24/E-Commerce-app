@@ -141,7 +141,6 @@ app.put("/userdata/update", verifyToken, async (req, res) => {
 			new: true,
 		});
 		if (!updateUserData) {
-			console.log;
 			return res.status(404).json({ message: "User not found" }); // Respond with 404 Not Found if product not found
 		}
 		return res
@@ -158,10 +157,9 @@ app.get("/products/seller", verifyToken, isSeller, async (req, res) => {
 	try {
 		Product.find({ sellerId: sellerId }).then((products) => {
 			if (products.length > 0) {
-				console.log("Products:", products);
 				res.json(products);
 			} else {
-				console.log("No products found with that seller ID");
+				res.json({ message: "No products found with that seller ID" });
 			}
 		});
 	} catch (err) {
@@ -262,7 +260,9 @@ app.get("/cart", verifyToken, async (req, res) => {
 			const product = await Product.findById(cartItem.productId);
 			if (!product) {
 				// Handle missing product gracefully
-				console.log(`Product with ID ${cartItem.productId} not found.`);
+				res.json({
+					message: `Product with ID ${cartItem.productId} not found.`,
+				});
 				continue; // Skip to the next item
 			}
 			productsData.push({
