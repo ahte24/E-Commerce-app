@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const Page = () => {
 	const [data, setData] = useState(null);
-	const [verified, setVerified] = useState(true); // State to track verification status
+	const [verified, setVerified] = useState(false); // State to track verification status
 	const handleSignin = () => {
 		window.location.href = "/signin";
 	};
@@ -67,7 +67,7 @@ const Page = () => {
 						<h1 className=" mt-2 ">ahtesham_24</h1>
 						<h1 className="text-xl mt-1 font-medium">Mohamed Ahtesham</h1>
 						<Link
-							href="/"
+							href="/profile/update"
 							className="bg-slate-200 cursor-pointer hover:bg-slate-300 transition-all w-full h-[7vh] rounded-lg mt-6 flex justify-center items-center font-medium"
 						>
 							<div>Edit Profile</div>

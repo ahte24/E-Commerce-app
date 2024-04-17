@@ -169,7 +169,7 @@ app.get("/products/seller", verifyToken, isSeller, async (req, res) => {
 
 // To view a specific data
 // Fetch single data of the product associated with the ID from the product collection of the database (GET)
-app.get("/product/info/:id", verifyToken, isSeller, async (req, res) => {
+app.get("/product/info/:id", async (req, res) => {
 	const { id } = req.params;
 
 	try {
